@@ -52,7 +52,7 @@ SQL_Query = pd.read_sql(
      '''
      SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
      FROM eventosmodelo
-     WHERE ( fecharegistro >= '2019-11-18 06:00:00' AND fecharegistro < '2019-11-18 07:00:00')
+     WHERE ( fecharegistro >= '2019-11-18 06:00:00' AND fecharegistro < '2019-11-18 06:15:00')
      ''',
     conn)
 
@@ -60,7 +60,7 @@ SQL_Query1 = pd.read_sql(
      '''
      SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
      FROM eventosmodelo
-     WHERE ( fecharegistro >= '2019-11-18 07:00:00' AND fecharegistro < '2019-11-18 08:00:00')
+     WHERE ( fecharegistro >= '2019-11-18 06:15:00' AND fecharegistro < '2019-11-18 06:30:00')
      ''',
     conn)
 
