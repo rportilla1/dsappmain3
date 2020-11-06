@@ -38,7 +38,44 @@ except ps.OperationalError as e:
 else:
     print('Connected!')
 
-SQL_Query = pd.read_sql('SELECT * FROM eventosmodelo LIMIT 10000', conn)
+# Query -----RICARDO
+
+#mult_idx = ['idruta', 'idvehiculo', 'idempresa', 'secuenciarecorrido', 'recorridoincumplido',\
+#            'consecutivoregistro' , 'fecharegistro' , 'longitud', 'latitud', 'pasajerossuben',\
+#            'pasajerosbajan', 'velocidad', 'margendesviacion']
+
+#SQL_Query = pd.read_sql('SELECT * FROM eventosmodelo LIMIT 1000', conn)
+
+#    WHERE ( fecharegistro >= '2019-11-18 00:00:00' AND fecharegistro < '2019-11-18 00:10:00')
+
+SQL_Query = pd.read_sql( 
+     '''
+     SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
+     FROM eventosmodelo
+     WHERE ( fecharegistro >= '2019-11-18 06:00:00' AND fecharegistro < '2019-11-18 07:00:00')
+     ''',
+    conn)
+
+SQL_Query1 = pd.read_sql( 
+     '''
+     SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
+     FROM eventosmodelo
+     WHERE ( fecharegistro >= '2019-11-18 07:00:00' AND fecharegistro < '2019-11-18 08:00:00')
+     ''',
+    conn)
+
+## Append 2 Dataframes  -----RICARDO
+SQL_Query = SQL_Query.append(SQL_Query1)
+
+## Identificacion de rutas NA -----RICARDO
+
+idruta_0 = (SQL_Query['idruta'] == 0) 
+SQL_QueryNA = SQL_Query[idruta_0]
+SQL_QueryNA = SQL_QueryNA.sort_values(by=['idvehiculo','secuenciarecorrido', 'consecutivoregistro']).reset_index(drop=True)
+
+fechamin = SQL_QueryNA.fecharegistro.min()
+fechamax = SQL_QueryNA.fecharegistro.max()
+
 # charts
 scatter = px.scatter(SQL_Query, x='longitud', y='latitud')
 
@@ -164,8 +201,8 @@ EQUITEAM = html.Div([html.A(children=[
 # GRAPHS
 graph1 = dcc.Graph(figure=scatter, id='scatter')
 graph2 = dash_table.DataTable(id='table',
-                     columns =[{'name':i, 'id':i} for i in SQL_Query.columns],
-                     data=SQL_Query.head(5).to_dict('records'))
+                     columns =[{'name':i, 'id':i} for i in SQL_QueryNA.columns],
+                     data=SQL_QueryNA.head(10).to_dict('records'))
 graph3 = dcc.Graph(
         id='example-graph_2',
         figure={
@@ -189,39 +226,86 @@ graph4 = dcc.Graph(
 
         figure = go.Figure([go.Indicator(
                                         mode = "number",
-                                        value = len(SQL_Query['idruta'].unique()),
-                                        title = {"text": "# de Rutas:"},
-                                        domain = {'x': [0, 0.5], 'y': [0.5, 1]}
+                                        #value = len(SQL_QueryNA['idruta'].unique()),
+                                        #value = 0,
+                                        title = {"text": "# de Pasajeros Suben:"},
+                                        domain = {'x': [0, 0.3], 'y': [0.4, 0.7]}
                                         #delta = {'reference': 400, 'relative': True, 'position' : "top"}
                                         ),
                                                 
                                         go.Indicator(
                                         #mode = "number+delta",
                                         mode = "number",
-                                        value = len(SQL_Query['idvehiculo'].unique()),
-                                        title = {"text": "Vehiculos:"},
+                                        value = len(SQL_QueryNA['idvehiculo'].unique()),
+                                        title = {"text": "Vehiculos NA:"},
                                         #delta = {'reference': 400, 'relative': True},
-                                        domain = {'x': [0.5, 1], 'y': [0, 0.5]}
+                                        domain = {'x': [0.3, 0.6], 'y': [0.4, 0.7]}
+                                        ),
+                                        
+                                        go.Indicator(
+                                        #mode = "number+delta",
+                                        mode = "number",
+                                        value = SQL_QueryNA['secuenciarecorrido'].count(),
+                                        title = {"text": "# de Registros NA:"},
+                                        #delta = {'reference': 400, 'relative': True},
+                                        domain = {'x': [0.6, 0.9], 'y': [0.4, 0.7]}
                                         ),
 
                                         go.Indicator(
                                         #mode = "number+delta",
                                         mode = "number",
-                                        value = len(SQL_Query['idempresa'].unique()),
-                                        title = {"text": "Empresas:"},
+                                        value = SQL_QueryNA['velocidad'].mean(),
+                                        title = {"text": "Velocidad Promedio NA K/hr:"},
                                         #delta = {'reference': 400, 'relative': True},
-                                        domain = {'x': [0, 0.5], 'y': [0, 0.5]}
+                                        domain = {'x': [0, 0.3], 'y': [0, 0.3]}
                                         ),
 
                                         go.Indicator(
                                         #mode = "number+delta",
                                         mode = "number",
-                                        value = len(SQL_Query['secuenciarecorrido'].unique()),
-                                        title = {"text": "Despachos:"},
+                                        value = (SQL_QueryNA['secuenciarecorrido'].count())/(SQL_Query['secuenciarecorrido'].count())*100,
+                                        number = {'suffix': "%"},
+                                        title = {"text": "Rutas NA:"},
                                         #delta = {'reference': 400, 'relative': True},
-                                        domain = {'x': [0.5, 1], 'y': [0.5, 1]})
-                                        ]),
-            
+                                        domain = {'x': [0.3, 0.6], 'y': [0, 0.3]}
+                                        ),
+
+                                        go.Indicator(
+                                        #mode = "number+delta",
+                                        mode = "number",
+                                        value = 0,
+                                        number = {'suffix': "%"},
+                                        title = {"text": "Rutas NA corregidas:"},
+                                        #delta = {'reference': 400, 'relative': True},
+                                        domain = {'x': [0.6, 0.9], 'y': [0, 0.3]}),
+
+                                        go.Indicator(
+                                            #mode = "number+delta",
+                                            #mode = "number",
+                                            #value = 0,
+                                            #number = {'prefix': "$"},
+                                            title = {"text": str(fechamin)},
+                                            #delta = {'reference': 400, 'relative': True},
+                                            domain = {'x': [0, 0.3], 'y': [0.8, 1]}),
+
+                                        go.Indicator(
+                                            #mode = "number+delta",
+                                            #mode = "number",
+                                            #value = 0,
+                                            title = {"text": str(fechamax)},
+                                            #delta = {'reference': 400, 'relative': True},
+                                            domain = {'x': [0.3, 0.6], 'y': [0.8, 1]}),
+
+                                        go.Indicator(
+                                            #mode = "number+delta",
+                                            mode = "number",
+                                            value = SQL_Query['secuenciarecorrido'].count(),
+                                            title = {"text": "Total Registros:"},
+                                            #delta = {'reference': 400, 'relative': True},
+                                            domain = {'x': [0.6, 0.9], 'y': [0.8, 1]})    
+
+                            ]),
+           
             id='KPI1')
 
 
@@ -245,7 +329,7 @@ content_seventh_row = dbc.Row([
                 dbc.CardBody(
                     [
                         html.H4(id='TITL', children=['# RUTAS'], className='card-title'),
-                        html.P(id='card_text_1', children=[str(SQL_Query['latitud'].mean())]),
+                        html.P(id='card_text_1', children=[str(SQL_QueryNA['latitud'].mean())]),
                     ]
                 )
             ], color="primary", inverse=True
@@ -343,7 +427,7 @@ content_sixth_row = dbc.Row(
 tabs = dbc.Tabs(
     [
         dbc.Tab([content_second_row, imagen], label="QUIENES SOMOS"),
-        dbc.Tab([NOSOTROS, EQUITEAM], label="NUESTRO EQUIPO"),
+        
         dbc.Tab([html.Hr(),
                  sidebar,
                  html.Hr(),
@@ -353,7 +437,9 @@ tabs = dbc.Tabs(
                  html.Hr(),
                  content_fifth_row,
                  html.Hr(),
-                 content_sixth_row], label="EDA")
+                 content_sixth_row], label="EDA"),
+
+        dbc.Tab([NOSOTROS, EQUITEAM], label="NUESTRO EQUIPO")
     ]
 )
 
@@ -399,7 +485,6 @@ html.H5("EXPLORACIÓN DE DATOS"),
 
 html.Div(id='output_date')
 ], id='layout')
-
 
 
 #### Interactividad
