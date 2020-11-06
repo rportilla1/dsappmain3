@@ -44,28 +44,29 @@ else:
 #            'consecutivoregistro' , 'fecharegistro' , 'longitud', 'latitud', 'pasajerossuben',\
 #            'pasajerosbajan', 'velocidad', 'margendesviacion']
 
-#SQL_Query = pd.read_sql('SELECT * FROM eventosmodelo LIMIT 1000', conn)
+SQL_Query = pd.read_sql('SELECT * FROM eventosmodelo LIMIT 10000', conn)
+
 
 #    WHERE ( fecharegistro >= '2019-11-18 00:00:00' AND fecharegistro < '2019-11-18 00:10:00')
 
-SQL_Query = pd.read_sql( 
-     '''
-     SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
-     FROM eventosmodelo
-     WHERE ( fecharegistro >= '2019-11-18 06:00:00' AND fecharegistro < '2019-11-18 06:15:00')
-     ''',
-    conn)
+#SQL_Query = pd.read_sql( 
+#     '''
+#     SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
+#     FROM eventosmodelo
+#     WHERE ( fecharegistro >= '2019-11-18 06:00:00' AND fecharegistro < '2019-11-18 06:15:00')
+#     ''',
+#    conn)
 
-SQL_Query1 = pd.read_sql( 
-     '''
-     SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
-     FROM eventosmodelo
-     WHERE ( fecharegistro >= '2019-11-18 06:15:00' AND fecharegistro < '2019-11-18 06:30:00')
-     ''',
-    conn)
+#SQL_Query1 = pd.read_sql( 
+#     '''
+#     SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad
+#     FROM eventosmodelo
+#     WHERE ( fecharegistro >= '2019-11-18 06:15:00' AND fecharegistro < '2019-11-18 06:30:00')
+#     ''',
+#    conn)
 
 ## Append 2 Dataframes  -----RICARDO
-SQL_Query = SQL_Query.append(SQL_Query1)
+#SQL_Query = SQL_Query.append(SQL_Query1)
 
 ## Identificacion de rutas NA -----RICARDO
 
