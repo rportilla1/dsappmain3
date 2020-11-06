@@ -44,7 +44,7 @@ else:
 #            'consecutivoregistro' , 'fecharegistro' , 'longitud', 'latitud', 'pasajerossuben',\
 #            'pasajerosbajan', 'velocidad', 'margendesviacion']
 
-SQL_Query = pd.read_sql('SELECT * FROM eventosmodelo LIMIT 10000', conn)
+SQL_Query = pd.read_sql('SELECT idruta, idvehiculo, secuenciarecorrido, consecutivoregistro, recorridoincumplido, fecharegistro, longitud, latitud, velocidad FROM eventosmodelo LIMIT 100000', conn)
 
 
 #    WHERE ( fecharegistro >= '2019-11-18 00:00:00' AND fecharegistro < '2019-11-18 00:10:00')
